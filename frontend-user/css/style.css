@@ -1,0 +1,821 @@
+/* ========================================
+   Smart Menu Generator
+   Design Language: Linear / Vercel / Notion
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+:root {
+  /* 主色 - 深沉翡翠绿 */
+  --color-primary: #059669;
+  --color-primary-hover: #047857;
+  --color-primary-subtle: rgba(5, 150, 105, 0.08);
+  --color-primary-muted: rgba(5, 150, 105, 0.15);
+
+  /* 中性色 */
+  --color-bg-base: #f8fafb;
+  --color-bg-elevated: #ffffff;
+  --color-bg-sunken: #f1f5f9;
+  --color-bg-overlay: rgba(255, 255, 255, 0.72);
+
+  /* 文字 */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94a3b8;
+  --color-text-inverse: #ffffff;
+
+  /* 边框 */
+  --color-border: #e2e8f0;
+  --color-border-subtle: #f1f5f9;
+  --color-border-focus: var(--color-primary);
+
+  /* 语义色 */
+  --color-success: #10b981;
+  --color-error: #f43f5e;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+
+  /* 标签色 */
+  --color-tag-warm: #fef3c7;
+  --color-tag-warm-text: #b45309;
+  --color-tag-cool: #e0f2fe;
+  --color-tag-cool-text: #0369a1;
+
+  /* 阴影 - 精细分层 */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 0 3px var(--color-primary-subtle);
+  --shadow-card-hover: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -4px rgba(0, 0, 0, 0.06);
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* 动效 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+}
+
+/* ========================================
+   Reset & Base
+   ======================================== */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  /* 微妙的网格纹理背景 */
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* ========================================
+   Layout
+   ======================================== */
+
+.app-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+/* ========================================
+   Header - Hero 风格
+   ======================================== */
+
+.app-header {
+  text-align: center;
+  padding: 56px 32px 48px;
+  background: linear-gradient(160deg, #064e3b 0%, #059669 40%, #34d399 100%);
+  border-radius: var(--radius-2xl);
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-xl), inset 0 1px 0 rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* 装饰性光晕 */
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -15%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 65%);
+  border-radius: 50%;
+  z-index: 0;
+  animation: float 8s ease-in-out infinite;
+}
+
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%);
+  border-radius: 50%;
+  z-index: 0;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.app-logo {
+  font-size: 52px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+}
+
+.app-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.app-subtitle {
+  font-size: 15px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   Control Panel - 玻璃态卡片
+   ======================================== */
+
+.control-panel {
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-xl);
+  padding: 32px 36px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.control-group {
+  margin-bottom: 28px;
+}
+
+.control-group:last-child {
+  margin-bottom: 0;
+}
+
+.control-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  margin-bottom: 14px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ========================================
+   Toggle Buttons - 精致选择器
+   ======================================== */
+
+.mode-btn,
+.people-btn,
+.appetite-btn {
+  padding: 10px 20px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+  user-select: none;
+  position: relative;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+.mode-btn:hover,
+.people-btn:hover,
+.appetite-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.mode-btn:active,
+.people-btn:active,
+.appetite-btn:active {
+  transform: translateY(0);
+}
+
+.mode-btn.active,
+.people-btn.active,
+.appetite-btn.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25), var(--shadow-glow);
+  font-weight: 600;
+}
+
+.mode-btn.active:hover,
+.people-btn.active:hover,
+.appetite-btn.active:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+  transform: translateY(-1px);
+}
+
+.people-btn .people-icon {
+  margin-right: 5px;
+}
+
+/* ========================================
+   Generate Button - CTA
+   ======================================== */
+
+.btn-generate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 15px 32px;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-generate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.btn-generate:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.35);
+}
+
+.btn-generate:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+}
+
+.btn-generate.btn-loading {
+  opacity: 0.75;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.2);
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Result Area
+   ======================================== */
+
+#result-area {
+  min-height: 80px;
+}
+
+.result-fade-in {
+  animation: fadeInUp var(--duration-slow) var(--ease-out);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+   Day Section (周模式)
+   ======================================== */
+
+.day-section {
+  margin-bottom: 36px;
+}
+
+.day-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  padding: 14px 22px;
+  background: linear-gradient(135deg, var(--color-primary-subtle) 0%, rgba(52, 211, 153, 0.06) 100%);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  border-left: 3px solid var(--color-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ========================================
+   Meal Section - 餐次卡片
+   ======================================== */
+
+.meal-section {
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  transition: box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.meal-section:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.meal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+}
+
+.meal-title::before {
+  content: '🕐';
+  font-size: 16px;
+}
+
+/* ========================================
+   Food Grid
+   ======================================== */
+
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 12px;
+}
+
+/* ========================================
+   Food Card - 精致卡片
+   ======================================== */
+
+.food-item {
+  background: var(--color-bg-sunken);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  border: 1px solid var(--color-border-subtle);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.food-item:hover {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+.food-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.food-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.food-type-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-muted);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.food-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 10px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.food-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.food-cuisine {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-elevated);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-subtle);
+  font-weight: 500;
+}
+
+.food-tag {
+  font-size: 10px;
+  color: var(--color-tag-warm-text);
+  background: var(--color-tag-warm);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+/* ========================================
+   Replace Button - 微交互
+   ======================================== */
+
+.btn-replace {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-normal) var(--ease-spring),
+    opacity var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  box-shadow: var(--shadow-xs);
+  opacity: 0;
+}
+
+.food-item:hover .btn-replace {
+  opacity: 1;
+}
+
+.btn-replace:hover {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  transform: rotate(180deg);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-replace:active {
+  transform: rotate(180deg) scale(0.92);
+}
+
+/* Card animations */
+.food-item-exit {
+  animation: cardExit 200ms var(--ease-out) forwards;
+}
+
+.food-item-enter {
+  animation: cardEnter 300ms var(--ease-spring);
+}
+
+@keyframes cardExit {
+  to { opacity: 0; transform: scale(0.92) translateY(4px); }
+}
+
+@keyframes cardEnter {
+  from { opacity: 0; transform: scale(0.92) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ========================================
+   Toast - 精致通知
+   ======================================== */
+
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-xl);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  transform: translateX(calc(100% + 24px));
+  transition:
+    transform 350ms var(--ease-out),
+    opacity 300ms var(--ease-out);
+  pointer-events: auto;
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  max-width: 340px;
+}
+
+.toast-success { border-left: 3px solid var(--color-success); }
+.toast-error { border-left: 3px solid var(--color-error); }
+.toast-info { border-left: 3px solid var(--color-info); }
+
+.toast-show { transform: translateX(0); }
+
+.toast-hide {
+  opacity: 0;
+  transform: translateX(calc(100% + 24px));
+}
+
+.toast-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.toast-success .toast-icon { background: rgba(16, 185, 129, 0.12); color: var(--color-success); }
+.toast-error .toast-icon { background: rgba(244, 63, 94, 0.12); color: var(--color-error); }
+.toast-info .toast-icon { background: rgba(59, 130, 246, 0.12); color: var(--color-info); }
+
+.toast-text { flex: 1; line-height: 1.4; }
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-xl);
+  border: 1.5px dashed var(--color-border);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.empty-state-desc {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+
+.app-footer {
+  text-align: center;
+  padding: 36px 20px 16px;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   Responsive - 移动端适配
+   ======================================== */
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 16px 14px 48px;
+  }
+
+  .app-header {
+    padding: 36px 20px 32px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 20px;
+  }
+
+  .app-logo { font-size: 40px; }
+
+  .app-title {
+    font-size: 24px;
+  }
+
+  .app-subtitle {
+    font-size: 13px;
+  }
+
+  .control-panel {
+    padding: 22px 18px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 20px;
+  }
+
+  .btn-group {
+    gap: 8px;
+  }
+
+  .mode-btn,
+  .people-btn,
+  .appetite-btn {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+
+  .btn-generate {
+    padding: 14px 24px;
+    font-size: 14px;
+  }
+
+  .food-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .food-item {
+    padding: 14px;
+  }
+
+  .food-name {
+    font-size: 14px;
+  }
+
+  .btn-replace {
+    opacity: 1;
+  }
+
+  .meal-section {
+    padding: 18px 16px;
+    margin-bottom: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .day-title {
+    font-size: 15px;
+    padding: 12px 16px;
+  }
+
+  #toast-container {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+  }
+
+  .toast {
+    font-size: 12px;
+    padding: 10px 14px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .food-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-group {
+    gap: 6px;
+  }
+
+  .mode-btn,
+  .people-btn,
+  .appetite-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* ========================================
+   Focus States - 无障碍
+   ======================================== */
+
+.mode-btn:focus-visible,
+.people-btn:focus-visible,
+.appetite-btn:focus-visible,
+.btn-generate:focus-visible,
+.btn-replace:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

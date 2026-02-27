@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="智能菜单生成器 - 按餐、按天、按周自动生成中式菜单">
+  <title>智能菜单生成器 | Smart Menu Generator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Toast 容器 -->
+  <div id="toast-container" role="alert" aria-live="polite"></div>
+
+  <div class="app-container">
+
+    <!-- 头部 -->
+    <header class="app-header">
+      <div class="app-logo">🍽️</div>
+      <h1 class="app-title">智能菜单生成器</h1>
+      <p class="app-subtitle">覆盖八大菜系 · 按餐按天按周智能推荐 · 告别选择困难</p>
+    </header>
+
+    <!-- 控制面板 -->
+    <section class="control-panel" aria-label="菜单设置">
+
+      <!-- 生成模式 -->
+      <div class="control-group">
+        <label class="control-label">生成模式</label>
+        <div class="btn-group" role="radiogroup" aria-label="选择生成模式">
+          <button class="mode-btn" data-mode="meal" role="radio" aria-checked="false">
+            🍳 单餐推荐
+          </button>
+          <button class="mode-btn" data-mode="day" role="radio" aria-checked="false">
+            ☀️ 全天菜单
+          </button>
+          <button class="mode-btn" data-mode="week" role="radio" aria-checked="false">
+            📅 一周菜单
+          </button>
+        </div>
+      </div>
+
+      <!-- 用餐人数 -->
+      <div class="control-group">
+        <label class="control-label">用餐人数</label>
+        <div class="btn-group" role="radiogroup" aria-label="选择用餐人数">
+          <button class="people-btn" data-people="1" role="radio" aria-checked="false">
+            <span class="people-icon">👤</span>1人
+          </button>
+          <button class="people-btn" data-people="2" role="radio" aria-checked="false">
+            <span class="people-icon">👥</span>2人
+          </button>
+          <button class="people-btn" data-people="3" role="radio" aria-checked="false">
+            <span class="people-icon">👨‍👩‍👦</span>3人
+          </button>
+          <button class="people-btn" data-people="4" role="radio" aria-checked="false">
+            <span class="people-icon">👨‍👩‍👧‍👦</span>4人
+          </button>
+        </div>
+      </div>
+
+      <!-- 食量选择 -->
+      <div class="control-group">
+        <label class="control-label">食量</label>
+        <div class="btn-group" role="radiogroup" aria-label="选择食量">
+          <button class="appetite-btn" data-appetite="small" role="radio" aria-checked="false">
+            🍃 少食
+          </button>
+          <button class="appetite-btn" data-appetite="normal" role="radio" aria-checked="false">
+            🍽️ 正常
+          </button>
+          <button class="appetite-btn" data-appetite="large" role="radio" aria-checked="false">
+            🔥 大食量
+          </button>
+        </div>
+      </div>
+
+      <!-- 生成按钮 -->
+      <div class="control-group">
+        <button class="btn-generate" id="btn-generate" aria-label="生成菜单">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          生成菜单
+        </button>
+      </div>
+
+    </section>
+
+    <!-- 结果区域 -->
+    <main id="result-area" aria-label="菜单结果">
+      <div class="empty-state">
+        <div class="empty-state-icon">🥘</div>
+        <div class="empty-state-title">选择模式和人数，点击生成</div>
+        <div class="empty-state-desc">支持单餐、全天、一周三种模式，每道菜都可以单独换</div>
+      </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="app-footer">
+      <p>Smart Menu Generator · 覆盖川粤鲁苏浙闽湘徽八大菜系</p>
+    </footer>
+
+  </div>
+
+  <!-- JS 模块按依赖顺序加载 -->
+  <script src="js/data.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

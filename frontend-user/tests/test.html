@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>菜单生成器 - 单元测试</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
+    .pass { color: #10b981; }
+    .fail { color: #ef4444; }
+    .section { margin: 16px 0 8px; font-size: 16px; font-weight: bold; color: #3b82f6; }
+    .summary { margin-top: 20px; padding: 12px; border-radius: 8px; font-size: 14px; }
+    .summary.all-pass { background: #064e3b; color: #6ee7b7; }
+    .summary.has-fail { background: #7f1d1d; color: #fca5a5; }
+    pre { margin: 2px 0; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>🧪 菜单生成器单元测试</h1>
+  <div id="output"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/generator.js"></script>
+  <script>
+    const output = document.getElementById('output');
+    let passed = 0;
+    let failed = 0;
+
+    function section(name) {
+      output.innerHTML += `<div class="section">${name}</div>`;
+    }
+
+    function assert(desc, condition) {
+      if (condition) {
+        passed++;
+        output.innerHTML += `<pre class="pass">  ✓ ${desc}</pre>`;
+      } else {
+        failed++;
+        output.innerHTML += `<pre class="fail">  ✕ ${desc}</pre>`;
+      }
+    }
+
+    // ==========================================
+    // 1. getPortionByPeople - 基础份量
+    // ==========================================
+    section('1. getPortionByPeople - 基础份量');
+
+    const p1n = MenuGenerator.getPortionByPeople(1, 'normal');
+    assert('1人正常: 1菜1主食1汤', p1n.dishCount === 1 && p1n.stapleCount === 1 && p1n.soupCount === 1);
+
+    const p2n = MenuGenerator.getPortionByPeople(2, 'normal');
+    assert('2人正常: 2菜1主食1汤', p2n.dishCount === 2 && p2n.stapleCount === 1 && p2n.soupCount === 1);
+
+    const p3n = MenuGenerator.getPortionByPeople(3, 'normal');
+    assert('3人正常: 3菜2主食1汤', p3n.dishCount === 3 && p3n.stapleCount === 2 && p3n.soupCount === 1);
+
+    const p4n = MenuGenerator.getPortionByPeople(4, 'normal');
+    assert('4人正常: 4菜2主食1汤', p4n.dishCount === 4 && p4n.stapleCount === 2 && p4n.soupCount === 1);
+
+    // ==========================================
+    // 2. 食量差异验证（核心修复项）
+    // ==========================================
+    section('2. 食量差异验证');
+
+    // 少食 vs 正常：菜品数应严格小于正常
+    const p2s = MenuGenerator.getPortionByPeople(2, 'small');
+    assert(`2人少食菜数(${p2s.dishCount}) < 正常(${p2n.dishCount})`, p2s.dishCount < p2n.dishCount);
+
+    const p3s = MenuGenerator.getPortionByPeople(3, 'small');
+    assert(`3人少食菜数(${p3s.dishCount}) < 正常(${p3n.dishCount})`, p3s.dishCount < p3n.dishCount);
+
+    const p4s = MenuGenerator.getPortionByPeople(4, 'small');
+    assert(`4人少食菜数(${p4s.dishCount}) < 正常(${p4n.dishCount})`, p4s.dishCount < p4n.dishCount);
+
+    // 大食量 vs 正常：菜品数应严格大于正常
+    const p2l = MenuGenerator.getPortionByPeople(2, 'large');
+    assert(`2人大食量菜数(${p2l.dishCount}) > 正常(${p2n.dishCount})`, p2l.dishCount > p2n.dishCount);
+    assert(`2人大食量主食(${p2l.stapleCount}) > 正常(${p2n.stapleCount})`, p2l.stapleCount > p2n.stapleCount);
+
+    const p4l = MenuGenerator.getPortionByPeople(4, 'large');
+    assert(`4人大食量菜数(${p4l.dishCount}) > 正常(${p4n.dishCount})`, p4l.dishCount > p4n.dishCount);
+
+    // 1人少食保底至少1菜
+    const p1s = MenuGenerator.getPortionByPeople(1, 'small');
+    assert(`1人少食保底: 菜数 >= 1 (实际: ${p1s.dishCount})`, p1s.dishCount >= 1);
+    assert(`1人少食保底: 主食 >= 1 (实际: ${p1s.stapleCount})`, p1s.stapleCount >= 1);
+    assert(`1人少食保底: 汤 >= 1 (实际: ${p1s.soupCount})`, p1s.soupCount >= 1);
+
+    // 全组合遍历：所有人数×食量都至少1菜1主食1汤
+    let allMinOk = true;
+    [1,2,3,4].forEach(p => {
+      ['small','normal','large'].forEach(a => {
+        const r = MenuGenerator.getPortionByPeople(p, a);
+        if (r.dishCount < 1 || r.stapleCount < 1 || r.soupCount < 1) allMinOk = false;
+      });
+    });
+    assert('全组合(4人×3食量)均满足 >=1菜+1主食+1汤', allMinOk);
+
+    // ==========================================
+    // 3. 数据库完整性
+    // ==========================================
+    section('3. 数据库完整性');
+
+    const allDishes = MenuDatabase.getAllByType('dish');
+    const allStaples = MenuDatabase.getAllByType('staple');
+    const allSoups = MenuDatabase.getAllByType('soup');
+
+    assert(`菜品数量 >= 105 (实际: ${allDishes.length})`, allDishes.length >= 105);
+    assert(`主食数量 >= 30 (实际: ${allStaples.length})`, allStaples.length >= 30);
+    assert(`汤品数量 >= 21 (实际: ${allSoups.length})`, allSoups.length >= 21);
+
+    const cuisines = new Set(allDishes.map(d => d.cuisine));
+    assert(`覆盖八大菜系 (实际: ${cuisines.size})`, cuisines.size >= 8);
+
+    // 每个菜系至少8道菜
+    let cuisineMinOk = true;
+    MenuDatabase.cuisines.forEach(c => {
+      const count = allDishes.filter(d => d.cuisine === c).length;
+      if (count < 8) cuisineMinOk = false;
+    });
+    assert('每个菜系至少8道菜', cuisineMinOk);
+
+    // 无重名
+    const allNames = [...allDishes, ...allStaples, ...allSoups].map(i => i.name);
+    const uniqueNames = new Set(allNames);
+    assert(`无重名 (${allNames.length} 项, ${uniqueNames.size} 唯一)`, allNames.length === uniqueNames.size);
+
+    // 每项都有必要字段
+    let fieldsOk = true;
+    [...allDishes, ...allStaples, ...allSoups].forEach(item => {
+      if (!item.name || !item.cuisine || !item.type || !Array.isArray(item.tags)) fieldsOk = false;
+    });
+    assert('所有菜品都有 name/cuisine/type/tags 字段', fieldsOk);
+
+    // ==========================================
+    // 4. pickRandom 去重逻辑
+    // ==========================================
+    section('4. pickRandom 去重逻辑');
+
+    const exclude = new Set(['麻婆豆腐', '宫保鸡丁']);
+    const filtered = MenuGenerator.pickRandom(allDishes, 5, exclude);
+    const filteredNames = filtered.map(d => d.name);
+    assert('排除集合生效: 不含麻婆豆腐', !filteredNames.includes('麻婆豆腐'));
+    assert('排除集合生效: 不含宫保鸡丁', !filteredNames.includes('宫保鸡丁'));
+    assert('返回数量正确: 5', filtered.length === 5);
+
+    // 返回结果自身无重复
+    const filteredUnique = new Set(filteredNames);
+    assert('pickRandom 结果自身无重复', filteredNames.length === filteredUnique.size);
+
+    // 请求数量超过可用池时不报错
+    const bigPick = MenuGenerator.pickRandom(allSoups, 999, new Set());
+    assert(`请求超量时返回全部 (${bigPick.length} = ${allSoups.length})`, bigPick.length === allSoups.length);
+
+    // 空排除集
+    const noPick = MenuGenerator.pickRandom(allDishes, 3, new Set());
+    assert('空排除集正常返回3项', noPick.length === 3);
+
+    // ==========================================
+    // 5. 单餐生成
+    // ==========================================
+    section('5. 单餐生成');
+
+    const meal = MenuGenerator.generateMeal(2, new Set(), '测试', 'normal');
+    assert('单餐包含 dishes', Array.isArray(meal.dishes) && meal.dishes.length > 0);
+    assert('单餐包含 staples', Array.isArray(meal.staples) && meal.staples.length > 0);
+    assert('单餐包含 soups', Array.isArray(meal.soups) && meal.soups.length > 0);
+    assert('单餐菜品数 = 2', meal.dishes.length === 2);
+
+    // 单餐内无重复
+    const mealAll = [...meal.dishes, ...meal.staples, ...meal.soups];
+    const mealNames = mealAll.map(i => i.name);
+    const mealUnique = new Set(mealNames);
+    assert('单餐内无重复', mealNames.length === mealUnique.size);
+
+    // 少食单餐菜品数应更少
+    const mealSmall = MenuGenerator.generateMeal(3, new Set(), '少食测试', 'small');
+    const mealNormal = MenuGenerator.generateMeal(3, new Set(), '正常测试', 'normal');
+    assert(`少食3人菜数(${mealSmall.dishes.length}) < 正常(${mealNormal.dishes.length})`,
+      mealSmall.dishes.length < mealNormal.dishes.length);
+
+    // ==========================================
+    // 6. 全天去重
+    // ==========================================
+    section('6. 全天去重');
+
+    const dayMeals = MenuGenerator.generateDay(2, new Set(), 'normal');
+    assert('全天生成3餐', dayMeals.length === 3);
+    const dayAllNames = [];
+    dayMeals.forEach(m => {
+      [...m.dishes, ...m.staples, ...m.soups].forEach(i => dayAllNames.push(i.name));
+    });
+    const dayUnique = new Set(dayAllNames);
+    assert(`全天无重复 (${dayAllNames.length} 项, ${dayUnique.size} 唯一)`,
+      dayAllNames.length === dayUnique.size);
+
+    // 全天大食量也无重复
+    const dayLarge = MenuGenerator.generateDay(4, new Set(), 'large');
+    const dayLargeNames = [];
+    dayLarge.forEach(m => {
+      [...m.dishes, ...m.staples, ...m.soups].forEach(i => dayLargeNames.push(i.name));
+    });
+    const dayLargeUnique = new Set(dayLargeNames);
+    assert(`全天4人大食量无重复 (${dayLargeNames.length} 项)`,
+      dayLargeNames.length === dayLargeUnique.size);
+
+    // ==========================================
+    // 7. 周菜单 - dish 严格不重复
+    // ==========================================
+    section('7. 周菜单 - dish 严格不重复');
+
+    // 2人正常（最宽松场景）
+    const week2n = MenuGenerator.generateWeek(2, 'normal');
+    assert('周菜单返回7天', Array.isArray(week2n.menu) && week2n.menu.length === 7);
+    assert('包含 dishReduced 标记', typeof week2n.dishReduced === 'boolean');
+
+    const week2nDishes = [];
+    week2n.menu.forEach(day => {
+      day.meals.forEach(m => m.dishes.forEach(d => week2nDishes.push(d.name)));
+    });
+    const week2nDishUnique = new Set(week2nDishes);
+    assert(`2人正常周菜品不重复 (${week2nDishes.length} 项, ${week2nDishUnique.size} 唯一)`,
+      week2nDishes.length === week2nDishUnique.size);
+
+    // 4人正常（较紧张场景：需要 4×3×7=84 道菜，池有96）
+    const week4n = MenuGenerator.generateWeek(4, 'normal');
+    const week4nDishes = [];
+    week4n.menu.forEach(day => {
+      day.meals.forEach(m => m.dishes.forEach(d => week4nDishes.push(d.name)));
+    });
+    const week4nDishUnique = new Set(week4nDishes);
+    assert(`4人正常周菜品不重复 (${week4nDishes.length} 项, ${week4nDishUnique.size} 唯一)`,
+      week4nDishes.length === week4nDishUnique.size);
+
+    // 4人大食量（极端场景：需要 5×3×7=105，池96不够，应缩减而非重复）
+    const week4l = MenuGenerator.generateWeek(4, 'large');
+    const week4lDishes = [];
+    week4l.menu.forEach(day => {
+      day.meals.forEach(m => m.dishes.forEach(d => week4lDishes.push(d.name)));
+    });
+    const week4lDishUnique = new Set(week4lDishes);
+    assert(`4人大食量周菜品仍不重复 (${week4lDishes.length} 项, ${week4lDishUnique.size} 唯一)`,
+      week4lDishes.length === week4lDishUnique.size);
+    assert('4人大食量 dishReduced=false（数据充足）', week4l.dishReduced === false);
+
+    // 每天每餐至少有1菜1主食1汤
+    let weekMinOk = true;
+    week4l.menu.forEach(day => {
+      day.meals.forEach(m => {
+        if (m.dishes.length < 1 || m.staples.length < 1 || m.soups.length < 1) weekMinOk = false;
+      });
+    });
+    assert('极端场景每餐仍保证 >=1菜+1主食+1汤', weekMinOk);
+
+    // ==========================================
+    // 8. replaceSingle 换菜
+    // ==========================================
+    section('8. replaceSingle 换菜');
+
+    const currentNames = new Set(['麻婆豆腐', '宫保鸡丁', '水煮牛肉']);
+    const replacement = MenuGenerator.replaceSingle('dish', currentNames);
+    assert('换菜返回非 null', replacement !== null);
+    assert('换菜结果不在排除集中', !currentNames.has(replacement.name));
+    assert('换菜结果类型正确', replacement.type === 'dish');
+
+    // ==========================================
+    // 汇总
+    // ==========================================
+    const total = passed + failed;
+    const summaryClass = failed === 0 ? 'all-pass' : 'has-fail';
+    output.innerHTML += `<div class="summary ${summaryClass}">
+      测试完成: ${total} 项, 通过 ${passed} 项, 失败 ${failed} 项
+    </div>`;
+
+    // 输出到 console 供 CI 脚本解析
+    console.log(`TEST_RESULT: ${total} total, ${passed} passed, ${failed} failed`);
+    if (failed > 0) console.error('TESTS FAILED');
+  </script>
+</body>
+</html>

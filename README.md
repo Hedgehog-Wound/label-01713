@@ -1,93 +1,79 @@
-# label-01713
+# 智能菜单生成器 Smart Menu Generator
 
+## How to Run
 
+1. 直接打开：用浏览器打开 `frontend-user/index.html` 即可使用
+2. Docker 启动：
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.jzxhnh.com/prompt2repo/label-01713.git
-git branch -M main
-git push -uf origin main
+```bash
+docker-compose up --build -d
 ```
 
-## Integrate with your tools
+访问 http://localhost:8080
 
-* [Set up project integrations](https://gitlab.jzxhnh.com/prompt2repo/label-01713/-/settings/integrations)
+## Services
 
-## Collaborate with your team
+| 服务 | 说明 | 端口 | 技术栈 |
+|------|------|------|--------|
+| frontend-user | 用户端（菜单生成器） | 8080 | HTML / CSS / JS + Nginx |
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## 测试账号
 
-## Test and Deploy
+本项目为纯前端应用，无需登录，无测试账号。
 
-Use the built-in continuous integration in GitLab.
+## 题目内容
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+我需要一个每顿饭或每天或每周的自动生成菜单的HTML程序，通过这个程序，我可以选择每顿饭的推荐菜，也可以选择一整天的推荐菜，还可以输出每周的不重复的推荐菜，还要有1人、2人、3人、4人的人数选择，可选择的菜要包括国内各大菜系，每顿饭都要有至少1个菜+1份主食+1份汤，根据人数和大概食量来推荐菜的数量
 
-***
+---
 
-# Editing this README
+一款支持按餐、按天、按周自动生成中式菜单的应用，覆盖国内八大菜系，根据用餐人数智能推荐菜品数量。
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## 功能特性
 
-## Suggestions for a good README
+- 三种生成模式：单餐 / 全天 / 整周
+- 人数选择：1~4 人，菜品数量随人数动态调整
+- 食量选择：少食 / 正常 / 大食量，影响每餐菜品数量
+- 菜品库覆盖川、粤、鲁、苏、浙、闽、湘、徽八大菜系
+- 每餐保证至少 1 菜 + 1 主食 + 1 汤
+- 周菜单保证 7 天不重复
+- 一键换菜 / 重新生成
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## 数据说明
 
-## Name
-Choose a self-explaining name for your project.
+- 所有菜品数据为内置静态清单（108 道菜品 + 45 种主食 + 31 种汤品），非接口获取
+- 周不重复约束范围：菜品(dish)在整周内严格不重复；主食(staple)和汤品(soup)尽量不重复，当库存不足时会自动重置并给出提示
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## 单元测试
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+两种运行方式：
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+1. 浏览器：打开 `frontend-user/tests/test.html`
+2. 命令行（CI 友好）：`node frontend-user/tests/run-tests.js`
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+覆盖：
+- `getPortionByPeople` 人数×食量份量映射（含少食/大食量差异验证）
+- 数据库完整性（数量、八大菜系覆盖、无重名）
+- 去重逻辑（排除集合、单餐/全天/周不重复）
+- 周菜单 dish 严格不重复 + dishReduced 标记
+- replaceSingle 换菜
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## 项目结构
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```
+├── frontend-user/
+│   ├── index.html
+│   ├── css/
+│   ├── js/
+│   │   ├── data.js         # 菜品数据库
+│   │   ├── generator.js    # 生成核心逻辑
+│   │   ├── ui.js           # UI渲染/Toast
+│   │   └── app.js          # 主入口
+│   ├── tests/
+│   │   ├── test.html       # 浏览器端单元测试
+│   │   └── run-tests.js    # CLI 单元测试（Node.js）
+│   └── Dockerfile
+├── docker-compose.yml
+├── README.md
+└── .gitignore
+```
