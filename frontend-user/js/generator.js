@@ -99,7 +99,7 @@ const MenuGenerator = (() => {
   /**
    * 生成一周菜单（7天）
    * 周不重复约束：
-   *   - 菜品(dish)：严格不重复，绝不重置。池不足时动态缩减每餐菜品数。
+   *   - 菜品(dish)：尽量不重复，池不足时先缩减每餐菜品数（保证每餐≥1），池彻底耗尽时重置并标记。
    *   - 主食(staple)/汤(soup)：尽量不重复，池不足时重置并标记。
    */
   function generateWeek(people, appetite = 'normal') {
@@ -119,6 +119,7 @@ const MenuGenerator = (() => {
     let stapleReset = false;
     let soupReset = false;
     let dishReduced = false;
+    let dishReset = false;
 
     for (let i = 0; i < 7; i++) {
       // 主食/汤池不够时重置（非严格约束）
@@ -131,31 +132,25 @@ const MenuGenerator = (() => {
         if (i > 0) soupReset = true;
       }
 
-      // 菜品(dish)严格不重置，计算本天可用菜品数
-      const remainingDishes = totalDishes - usedDishes.size;
+      // 菜品(dish)池不够每餐最低1道时重置（保证"每餐至少1菜"硬性约束）
+      let remainingDishes = totalDishes - usedDishes.size;
+      if (remainingDishes < 3) {
+        usedDishes.clear();
+        remainingDishes = totalDishes;
+        if (i > 0) dishReset = true;
+      }
+
       const idealDailyDish = portion.dishCount * 3;
 
-      // 如果剩余不够理想数量，按餐分配剩余（每餐至少1道，池彻底耗尽时取1并允许 pickRandom 返回空）
+      // 如果剩余不够理想数量，按餐分配剩余（每餐至少1道）
       let dishPerMealArr = [portion.dishCount, portion.dishCount, portion.dishCount];
       if (remainingDishes < idealDailyDish) {
         dishReduced = true;
-        if (remainingDishes <= 0) {
-          // 池彻底耗尽，每餐请求1道（pickRandom 会返回空数组，不会重复）
-          dishPerMealArr = [1, 1, 1];
-        } else if (remainingDishes < 3) {
-          // 不够3餐各1道，尽量分配
-          dishPerMealArr = [
-            remainingDishes >= 1 ? 1 : 0,
-            remainingDishes >= 2 ? 1 : 0,
-            remainingDishes >= 3 ? 1 : 0,
-          ];
-        } else {
-          const perMeal = Math.floor(remainingDishes / 3);
-          let leftover = remainingDishes - perMeal * 3;
-          dishPerMealArr = [perMeal, perMeal, perMeal];
-          for (let r = 0; r < leftover; r++) {
-            dishPerMealArr[r]++;
-          }
+        const perMeal = Math.max(1, Math.floor(remainingDishes / 3));
+        let leftover = remainingDishes - perMeal * 3;
+        dishPerMealArr = [perMeal, perMeal, perMeal];
+        for (let r = 0; r < Math.max(0, leftover); r++) {
+          dishPerMealArr[r]++;
         }
       }
 
@@ -193,7 +188,7 @@ const MenuGenerator = (() => {
       weekMenu.push({ day: dayNames[i], meals });
     }
 
-    return { menu: weekMenu, stapleReset, soupReset, dishReduced };
+    return { menu: weekMenu, stapleReset, soupReset, dishReduced, dishReset };
   }
 
   /**

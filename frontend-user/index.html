@@ -76,6 +76,22 @@
         </div>
       </div>
 
+      <!-- 餐次选择（仅单餐模式可见） -->
+      <div class="control-group" id="meal-type-group" style="display:none;">
+        <label class="control-label">餐次</label>
+        <div class="btn-group" role="radiogroup" aria-label="选择餐次">
+          <button class="meal-type-btn" data-meal-type="早餐" role="radio" aria-checked="false">
+            🌅 早餐
+          </button>
+          <button class="meal-type-btn" data-meal-type="午餐" role="radio" aria-checked="true">
+            ☀️ 午餐
+          </button>
+          <button class="meal-type-btn" data-meal-type="晚餐" role="radio" aria-checked="false">
+            🌙 晚餐
+          </button>
+        </div>
+      </div>
+
       <!-- 生成按钮 -->
       <div class="control-group">
         <button class="btn-generate" id="btn-generate" aria-label="生成菜单">

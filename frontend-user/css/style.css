@@ -227,7 +227,8 @@ body {
 
 .mode-btn,
 .people-btn,
-.appetite-btn {
+.appetite-btn,
+.meal-type-btn {
   padding: 10px 20px;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -250,7 +251,8 @@ body {
 
 .mode-btn:hover,
 .people-btn:hover,
-.appetite-btn:hover {
+.appetite-btn:hover,
+.meal-type-btn:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
   background: var(--color-primary-subtle);
@@ -260,13 +262,15 @@ body {
 
 .mode-btn:active,
 .people-btn:active,
-.appetite-btn:active {
+.appetite-btn:active,
+.meal-type-btn:active {
   transform: translateY(0);
 }
 
 .mode-btn.active,
 .people-btn.active,
-.appetite-btn.active {
+.appetite-btn.active,
+.meal-type-btn.active {
   border-color: var(--color-primary);
   background: var(--color-primary);
   color: var(--color-text-inverse);
@@ -276,7 +280,8 @@ body {
 
 .mode-btn.active:hover,
 .people-btn.active:hover,
-.appetite-btn.active:hover {
+.appetite-btn.active:hover,
+.meal-type-btn.active:hover {
   background: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
   color: var(--color-text-inverse);
@@ -526,7 +531,7 @@ body {
 
 .btn-replace {
   position: absolute;
-  top: 12px;
+  bottom: 12px;
   right: 12px;
   width: 28px;
   height: 28px;
@@ -728,7 +733,8 @@ body {
 
   .mode-btn,
   .people-btn,
-  .appetite-btn {
+  .appetite-btn,
+  .meal-type-btn {
     padding: 9px 14px;
     font-size: 13px;
   }
@@ -790,7 +796,8 @@ body {
 
   .mode-btn,
   .people-btn,
-  .appetite-btn {
+  .appetite-btn,
+  .meal-type-btn {
     padding: 8px 12px;
     font-size: 12px;
   }
@@ -803,6 +810,7 @@ body {
 .mode-btn:focus-visible,
 .people-btn:focus-visible,
 .appetite-btn:focus-visible,
+.meal-type-btn:focus-visible,
 .btn-generate:focus-visible,
 .btn-replace:focus-visible {
   outline: 2px solid var(--color-primary);

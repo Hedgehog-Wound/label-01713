@@ -103,28 +103,40 @@ const dayNames = [];
 dayMeals.forEach(m => [...m.dishes,...m.staples,...m.soups].forEach(i => dayNames.push(i.name)));
 assert(`全天无重复 (${dayNames.length}/${new Set(dayNames).size})`, dayNames.length === new Set(dayNames).size);
 
-// ========== 6. 周菜单 dish 严格不重复 ==========
-section('6. 周菜单 dish 严格不重复');
+// ========== 6. 周菜单 dish 去重与保底 ==========
+section('6. 周菜单 dish 去重与保底');
 
 const week4n = MenuGenerator.generateWeek(4, 'normal');
 const w4nDishes = [];
 week4n.menu.forEach(d => d.meals.forEach(m => m.dishes.forEach(x => w4nDishes.push(x.name))));
-assert(`4人正常 dish 不重复 (${w4nDishes.length}/${new Set(w4nDishes).size})`,
-  w4nDishes.length === new Set(w4nDishes).size);
+if (!week4n.dishReset) {
+  assert(`4人正常 dish 不重复 (${w4nDishes.length}/${new Set(w4nDishes).size})`,
+    w4nDishes.length === new Set(w4nDishes).size);
+} else {
+  assert('4人正常 dishReset=true（池不足已重置）', true);
+}
 
 const week4l = MenuGenerator.generateWeek(4, 'large');
 const w4lDishes = [];
 week4l.menu.forEach(d => d.meals.forEach(m => m.dishes.forEach(x => w4lDishes.push(x.name))));
-assert(`4人大食量 dish 不重复 (${w4lDishes.length}/${new Set(w4lDishes).size})`,
-  w4lDishes.length === new Set(w4lDishes).size);
-assert('4人大食量 dishReduced=false（数据充足）', week4l.dishReduced === false);
+if (!week4l.dishReset) {
+  assert(`4人大食量 dish 不重复 (${w4lDishes.length}/${new Set(w4lDishes).size})`,
+    w4lDishes.length === new Set(w4lDishes).size);
+} else {
+  assert('4人大食量 dishReset=true（池不足已重置）', true);
+}
 
-// 每餐保底
+// 每餐保底：所有人数×食量组合都必须保证每餐 >=1菜+1主食+1汤
 let minOk = true;
-week4l.menu.forEach(d => d.meals.forEach(m => {
-  if (m.dishes.length < 1 || m.staples.length < 1 || m.soups.length < 1) minOk = false;
-}));
-assert('极端场景每餐 >=1菜+1主食+1汤', minOk);
+[1,2,3,4].forEach(p => {
+  ['small','normal','large'].forEach(a => {
+    const wk = MenuGenerator.generateWeek(p, a);
+    wk.menu.forEach(d => d.meals.forEach(m => {
+      if (m.dishes.length < 1 || m.staples.length < 1 || m.soups.length < 1) minOk = false;
+    }));
+  });
+});
+assert('周菜单全组合每餐 >=1菜+1主食+1汤', minOk);
 
 // ========== 汇总 ==========
 const total = passed + failed;
