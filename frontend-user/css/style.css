@@ -362,6 +362,57 @@ body {
 }
 
 /* ========================================
+   Export Bar
+   ======================================== */
+
+.export-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  background: var(--color-bg-sunken);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.export-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-right: 6px;
+}
+
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  user-select: none;
+}
+
+.btn-export:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary-muted);
+  background: var(--color-primary-subtle);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-export:active {
+  transform: translateY(0);
+}
+
+/* ========================================
    Result Area
    ======================================== */
 
@@ -770,6 +821,25 @@ body {
   .day-title {
     font-size: 15px;
     padding: 12px 16px;
+  }
+
+  .export-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .export-label {
+    width: 100%;
+    text-align: center;
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+
+  .btn-export {
+    padding: 7px 12px;
+    font-size: 12px;
   }
 
   #toast-container {
