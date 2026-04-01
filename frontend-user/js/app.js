@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentPeople = 2;
   let currentAppetite = 'normal';
   let currentMealType = '午餐';
+  let currentMenuData = null;
 
   // DOM
   const modeBtns = document.querySelectorAll('.mode-btn');
@@ -16,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const mealTypeBtns = document.querySelectorAll('.meal-type-btn');
   const mealTypeGroup = document.getElementById('meal-type-group');
   const generateBtn = document.getElementById('btn-generate');
+  const exportGroup = document.getElementById('export-group');
+  const exportBtns = document.querySelectorAll('.btn-export');
 
   // 通用切换逻辑
   function setupToggleGroup(btns, callback) {
@@ -49,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentMode === 'meal') {
           const meal = MenuGenerator.generateMeal(currentPeople, new Set(), currentMealType, currentAppetite);
           UI.renderSingleMeal(meal);
+          currentMenuData = { type: 'meal', menu: meal };
+          exportGroup.style.display = '';
           const portion = MenuGenerator.getPortionByPeople(currentPeople, currentAppetite);
           const mealWarnings = [];
           if (meal.dishes.length < portion.dishCount) mealWarnings.push('菜品库存有限，菜品数已缩减');
@@ -62,6 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentMode === 'day') {
           const dayMeals = MenuGenerator.generateDay(currentPeople, new Set(), currentAppetite);
           UI.renderDayMenu(dayMeals);
+          currentMenuData = { type: 'day', menu: dayMeals };
+          exportGroup.style.display = '';
           const portion = MenuGenerator.getPortionByPeople(currentPeople, currentAppetite);
           const dayWarnings = [];
           const hasReducedDish = dayMeals.some(m => m.dishes.length < portion.dishCount);
@@ -78,6 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentMode === 'week') {
           const result = MenuGenerator.generateWeek(currentPeople, currentAppetite);
           UI.renderWeekMenu(result.menu);
+          currentMenuData = { type: 'week', menu: result.menu };
+          exportGroup.style.display = '';
           const warnings = [];
           if (result.dishReduced) warnings.push('后几天菜品数已自动缩减以保证不重复');
           if (result.dishReset) warnings.push('菜品库存有限部分天可能重复');
@@ -96,6 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
         UI.setButtonLoading(generateBtn, false);
       }
     }, 400);
+  });
+
+  // 导出按钮
+  exportBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const format = btn.dataset.format;
+      UI.exportMenu(currentMenuData, format);
+    });
   });
 
   // 默认选中
