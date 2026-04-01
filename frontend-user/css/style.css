@@ -228,7 +228,8 @@ body {
 .mode-btn,
 .people-btn,
 .appetite-btn,
-.meal-type-btn {
+.meal-type-btn,
+.btn-export {
   padding: 10px 20px;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -247,12 +248,16 @@ body {
   position: relative;
   letter-spacing: 0.01em;
   line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .mode-btn:hover,
 .people-btn:hover,
 .appetite-btn:hover,
-.meal-type-btn:hover {
+.meal-type-btn:hover,
+.btn-export:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
   background: var(--color-primary-subtle);
@@ -263,7 +268,8 @@ body {
 .mode-btn:active,
 .people-btn:active,
 .appetite-btn:active,
-.meal-type-btn:active {
+.meal-type-btn:active,
+.btn-export:active {
   transform: translateY(0);
 }
 
@@ -734,7 +740,8 @@ body {
   .mode-btn,
   .people-btn,
   .appetite-btn,
-  .meal-type-btn {
+  .meal-type-btn,
+  .btn-export {
     padding: 9px 14px;
     font-size: 13px;
   }
@@ -797,7 +804,8 @@ body {
   .mode-btn,
   .people-btn,
   .appetite-btn,
-  .meal-type-btn {
+  .meal-type-btn,
+  .btn-export {
     padding: 8px 12px;
     font-size: 12px;
   }
@@ -811,6 +819,7 @@ body {
 .people-btn:focus-visible,
 .appetite-btn:focus-visible,
 .meal-type-btn:focus-visible,
+.btn-export:focus-visible,
 .btn-generate:focus-visible,
 .btn-replace:focus-visible {
   outline: 2px solid var(--color-primary);
