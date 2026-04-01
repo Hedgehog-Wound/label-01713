@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const mealTypeBtns = document.querySelectorAll('.meal-type-btn');
   const mealTypeGroup = document.getElementById('meal-type-group');
   const generateBtn = document.getElementById('btn-generate');
+  const exportGroup = document.getElementById('export-group');
+  const exportTxtBtn = document.getElementById('btn-export-txt');
+  const exportMdBtn = document.getElementById('btn-export-md');
+  const printBtn = document.getElementById('btn-print');
 
   // 通用切换逻辑
   function setupToggleGroup(btns, callback) {
@@ -39,6 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setupToggleGroup(peopleBtns, btn => { currentPeople = parseInt(btn.dataset.people, 10); });
   setupToggleGroup(appetiteBtns, btn => { currentAppetite = btn.dataset.appetite; });
   setupToggleGroup(mealTypeBtns, btn => { currentMealType = btn.dataset.mealType; });
+
+  // 导出按钮事件绑定
+  exportTxtBtn.addEventListener('click', () => UI.exportAsTxt());
+  exportMdBtn.addEventListener('click', () => UI.exportAsMarkdown());
+  printBtn.addEventListener('click', () => UI.printMenu());
 
   // 生成按钮
   generateBtn.addEventListener('click', () => {
@@ -89,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             UI.showToast('一周菜单已生成，全部不重复', 'success');
           }
         }
+        exportGroup.style.display = '';
       } catch (e) {
         UI.showToast('生成失败，请重试', 'error');
         console.error(e);

@@ -821,6 +821,121 @@ body {
    Reduced Motion
    ======================================== */
 
+/* ========================================
+   Export Buttons - 导出按钮样式
+   ======================================== */
+
+.export-btn {
+  padding: 10px 18px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+  user-select: none;
+  position: relative;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+.export-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.export-btn:active {
+  transform: translateY(0);
+}
+
+.export-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   Print Styles - 打印样式
+   ======================================== */
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: #ffffff;
+    background-image: none;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .app-container {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .app-header,
+  .control-panel,
+  .app-footer,
+  .btn-replace,
+  #toast-container,
+  .empty-state {
+    display: none !important;
+  }
+
+  #result-area {
+    display: block !important;
+  }
+
+  .day-section {
+    page-break-inside: avoid;
+    margin-bottom: 24px;
+  }
+
+  .day-title {
+    border: 1px solid #e2e8f0;
+    background: #f8fafb;
+  }
+
+  .meal-section {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+    page-break-inside: avoid;
+    background: #ffffff;
+  }
+
+  .food-item {
+    box-shadow: none;
+    border: 1px solid #f1f5f9;
+    background: #f8fafb;
+  }
+
+  .result-fade-in {
+    animation: none !important;
+  }
+
+  .food-type-badge {
+    border: 1px solid rgba(5, 150, 105, 0.15);
+  }
+
+  .food-cuisine,
+  .food-tag {
+    border: 1px solid #f1f5f9;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
