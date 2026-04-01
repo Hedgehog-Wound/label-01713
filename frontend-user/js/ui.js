@@ -117,13 +117,26 @@ const UI = (() => {
     container.classList.add('result-fade-in');
   }
 
+  /** 绑定导出按钮事件 */
+  function bindExportEvents(container, menuData, mode) {
+    const exportBtns = container.querySelectorAll('.btn-export');
+    exportBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const format = btn.dataset.format;
+        exportMenu(menuData, mode, format);
+      });
+    });
+  }
+
   /** 渲染单餐模式结果 */
   function renderSingleMeal(mealData) {
     const container = document.getElementById('result-area');
     container.innerHTML = '';
     const allNames = new Set();
     [...mealData.dishes, ...mealData.staples, ...mealData.soups].forEach(i => allNames.add(i.name));
+    renderExportButtons(container);
     container.appendChild(renderMeal(mealData, allNames));
+    bindExportEvents(container, mealData, 'meal');
     triggerFadeIn(container);
   }
 
@@ -135,9 +148,11 @@ const UI = (() => {
     dayMeals.forEach(meal => {
       [...meal.dishes, ...meal.staples, ...meal.soups].forEach(i => allNames.add(i.name));
     });
+    renderExportButtons(container);
     dayMeals.forEach(meal => {
       container.appendChild(renderMeal(meal, allNames));
     });
+    bindExportEvents(container, dayMeals, 'day');
     triggerFadeIn(container);
   }
 
@@ -152,6 +167,8 @@ const UI = (() => {
       });
     });
 
+    renderExportButtons(container);
+
     weekData.forEach(dayData => {
       const daySection = document.createElement('div');
       daySection.className = 'day-section';
@@ -163,7 +180,218 @@ const UI = (() => {
 
       container.appendChild(daySection);
     });
+    bindExportEvents(container, weekData, 'week');
     triggerFadeIn(container);
+  }
+
+  /** 触发文件下载 */
+  function downloadFile(content, filename, mimeType) {
+    try {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      return true;
+    } catch (e) {
+      console.error('导出失败:', e);
+      return false;
+    }
+  }
+
+  /** 格式化为纯文本 TXT */
+  function formatToText(menuData, mode) {
+    let lines = [];
+    const now = new Date().toLocaleString('zh-CN');
+    lines.push('=' .repeat(50));
+    lines.push('           🍽️ 智能菜单生成器');
+    lines.push('=' .repeat(50));
+    lines.push(`生成时间: ${now}`);
+    lines.push(`生成模式: ${mode === 'meal' ? '单餐' : mode === 'day' ? '全天' : '一周'}`);
+    lines.push('');
+
+    if (mode === 'meal') {
+      lines.push(`【${menuData.meal}】`);
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      ['dishes', 'staples', 'soups'].forEach(type => {
+        const label = type === 'dishes' ? '菜品' : type === 'staples' ? '主食' : '汤品';
+        const icon = type === 'dishes' ? '🍳' : type === 'staples' ? '🍚' : '🍲';
+        menuData[type].forEach(item => {
+          lines.push(`  ${icon} ${label}: ${item.name} (${item.cuisine})`);
+        });
+      });
+    } else if (mode === 'day') {
+      menuData.forEach(meal => {
+        lines.push(`【${meal.meal}】`);
+        lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        ['dishes', 'staples', 'soups'].forEach(type => {
+          const label = type === 'dishes' ? '菜品' : type === 'staples' ? '主食' : '汤品';
+          const icon = type === 'dishes' ? '🍳' : type === 'staples' ? '🍚' : '🍲';
+          meal[type].forEach(item => {
+            lines.push(`  ${icon} ${label}: ${item.name} (${item.cuisine})`);
+          });
+        });
+        lines.push('');
+      });
+    } else if (mode === 'week') {
+      menuData.forEach(day => {
+        lines.push('');
+        lines.push('◆' .repeat(50));
+        lines.push(`                    ${day.day}`);
+        lines.push('◆' .repeat(50));
+        day.meals.forEach(meal => {
+          lines.push('');
+          lines.push(`  【${meal.meal}】`);
+          ['dishes', 'staples', 'soups'].forEach(type => {
+            const label = type === 'dishes' ? '菜品' : type === 'staples' ? '主食' : '汤品';
+            meal[type].forEach(item => {
+              lines.push(`    • ${label}: ${item.name} (${item.cuisine})`);
+            });
+          });
+        });
+        lines.push('');
+      });
+    }
+
+    lines.push('');
+    lines.push('=' .repeat(50));
+    lines.push('  覆盖川粤鲁苏浙闽湘徽八大菜系 · 智能搭配');
+    lines.push('=' .repeat(50));
+
+    return lines.join('\r\n');
+  }
+
+  /** 格式化为 Markdown */
+  function formatToMarkdown(menuData, mode) {
+    let lines = [];
+    const now = new Date().toLocaleString('zh-CN');
+    lines.push('# 🍽️ 智能菜单');
+    lines.push('');
+    lines.push(`> 生成时间: ${now}`);
+    lines.push('');
+
+    if (mode === 'meal') {
+      lines.push(`## ${menuData.meal}`);
+      lines.push('');
+      ['dishes', 'staples', 'soups'].forEach(type => {
+        const label = type === 'dishes' ? '菜品' : type === 'staples' ? '主食' : '汤品';
+        if (menuData[type].length > 0) {
+          lines.push(`### ${label}`);
+          menuData[type].forEach(item => {
+            const tags = item.tags ? item.tags.map(t => `\`${t}\``).join(' ') : '';
+            lines.push(`- **${item.name}** - ${item.cuisine} ${tags}`);
+          });
+          lines.push('');
+        }
+      });
+    } else if (mode === 'day') {
+      menuData.forEach(meal => {
+        lines.push(`## ${meal.meal}`);
+        lines.push('');
+        ['dishes', 'staples', 'soups'].forEach(type => {
+          const label = type === 'dishes' ? '菜品' : type === 'staples' ? '主食' : '汤品';
+          if (meal[type].length > 0) {
+            lines.push(`### ${label}`);
+            meal[type].forEach(item => {
+              const tags = item.tags ? item.tags.map(t => `\`${t}\``).join(' ') : '';
+              lines.push(`- **${item.name}** - ${item.cuisine} ${tags}`);
+            });
+            lines.push('');
+          }
+        });
+      });
+    } else if (mode === 'week') {
+      menuData.forEach(day => {
+        lines.push(`## 📅 ${day.day}`);
+        lines.push('');
+        day.meals.forEach(meal => {
+          lines.push(`### ${meal.meal}`);
+          ['dishes', 'staples', 'soups'].forEach(type => {
+            meal[type].forEach(item => {
+              const tags = item.tags ? item.tags.map(t => `\`${t}\``).join(' ') : '';
+              lines.push(`- **${item.name}** - ${item.cuisine} ${tags}`);
+            });
+          });
+          lines.push('');
+        });
+      });
+    }
+
+    return lines.join('\r\n');
+  }
+
+  /** 格式化为 JSON */
+  function formatToJSON(menuData, mode) {
+    const exportData = {
+      version: '1.0',
+      exportTime: new Date().toISOString(),
+      mode: mode,
+      menu: menuData
+    };
+    return JSON.stringify(exportData, null, 2);
+  }
+
+  /** 执行导出 */
+  function exportMenu(menuData, mode, format) {
+    const now = new Date();
+    const dateStr = now.getFullYear().toString() +
+      (now.getMonth() + 1).toString().padStart(2, '0') +
+      now.getDate().toString().padStart(2, '0') + '_' +
+      now.getHours().toString().padStart(2, '0') +
+      now.getMinutes().toString().padStart(2, '0');
+
+    let content, filename, mimeType;
+
+    switch (format) {
+      case 'txt':
+        content = formatToText(menuData, mode);
+        filename = `菜单_${dateStr}.txt`;
+        mimeType = 'text/plain;charset=utf-8';
+        break;
+      case 'md':
+        content = formatToMarkdown(menuData, mode);
+        filename = `菜单_${dateStr}.md`;
+        mimeType = 'text/markdown;charset=utf-8';
+        break;
+      case 'json':
+        content = formatToJSON(menuData, mode);
+        filename = `菜单_${dateStr}.json`;
+        mimeType = 'application/json;charset=utf-8';
+        break;
+      default:
+        showToast('不支持的导出格式', 'error');
+        return;
+    }
+
+    const success = downloadFile(content, filename, mimeType);
+    if (success) {
+      showToast(`已导出: ${filename}`, 'success');
+    } else {
+      showToast('导出失败，请重试', 'error');
+    }
+  }
+
+  /** 渲染导出按钮 */
+  function renderExportButtons(container) {
+    const exportBar = document.createElement('div');
+    exportBar.className = 'export-bar';
+    exportBar.innerHTML = `
+      <span class="export-label">📤 导出菜单:</span>
+      <button class="btn-export" data-format="txt" title="导出为纯文本文件">
+        📄 TXT
+      </button>
+      <button class="btn-export" data-format="md" title="导出为Markdown格式">
+        📝 MD
+      </button>
+      <button class="btn-export" data-format="json" title="导出为JSON数据">
+        💾 JSON
+      </button>
+    `;
+    container.insertBefore(exportBar, container.firstChild);
   }
 
   return {
@@ -172,5 +400,7 @@ const UI = (() => {
     renderSingleMeal,
     renderDayMenu,
     renderWeekMenu,
+    exportMenu,
+    renderExportButtons,
   };
 })();
