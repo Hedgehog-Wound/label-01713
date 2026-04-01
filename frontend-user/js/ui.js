@@ -166,11 +166,281 @@ const UI = (() => {
     triggerFadeIn(container);
   }
 
+  /**
+   * 从DOM中提取当前菜单数据
+   */
+  function extractMenuData() {
+    const resultArea = document.getElementById('result-area');
+    const menuData = {
+      title: '智能菜单',
+      generatedAt: new Date().toLocaleString('zh-CN'),
+      days: []
+    };
+
+    const daySections = resultArea.querySelectorAll('.day-section');
+    if (daySections.length > 0) {
+      daySections.forEach(daySection => {
+        const dayTitle = daySection.querySelector('.day-title')?.textContent || '';
+        const dayData = { day: dayTitle, meals: [] };
+        const mealSections = daySection.querySelectorAll('.meal-section');
+        mealSections.forEach(mealSection => {
+          const mealTitle = mealSection.querySelector('.meal-title')?.textContent || '';
+          const foodItems = mealSection.querySelectorAll('.food-name');
+          const mealData = { meal: mealTitle, items: [] };
+          foodItems.forEach(item => {
+            mealData.items.push(item.textContent);
+          });
+          dayData.meals.push(mealData);
+        });
+        menuData.days.push(dayData);
+      });
+    } else {
+      const mealSections = resultArea.querySelectorAll('.meal-section');
+      const dayData = { day: '', meals: [] };
+      mealSections.forEach(mealSection => {
+        const mealTitle = mealSection.querySelector('.meal-title')?.textContent || '';
+        const foodItems = mealSection.querySelectorAll('.food-name');
+        const mealData = { meal: mealTitle, items: [] };
+        foodItems.forEach(item => {
+          mealData.items.push(item.textContent);
+        });
+        dayData.meals.push(mealData);
+      });
+      menuData.days.push(dayData);
+    }
+
+    return menuData;
+  }
+
+  /**
+   * 导出为TXT文本格式
+   */
+  function exportAsTxt() {
+    const menuData = extractMenuData();
+    let content = `═══════════════════════════════════\n`;
+    content += `           🍽️ 智能菜单\n`;
+    content += `      生成时间：${menuData.generatedAt}\n`;
+    content += `═══════════════════════════════════\n\n`;
+
+    menuData.days.forEach(day => {
+      if (day.day) {
+        content += `【${day.day}】\n`;
+        content += `───────────────────────────────────\n`;
+      }
+      day.meals.forEach(meal => {
+        if (meal.meal) {
+          content += `\n  ◆ ${meal.meal}\n`;
+        }
+        meal.items.forEach((item, idx) => {
+          content += `     ${idx + 1}. ${item}\n`;
+        });
+      });
+      if (day.day) {
+        content += `\n───────────────────────────────────\n\n`;
+      }
+    });
+
+    content += `\n═══════════════════════════════════\n`;
+    content += `  覆盖八大菜系 · 智能推荐不重复\n`;
+    content += `═══════════════════════════════════\n`;
+
+    downloadFile(content, '菜单.txt', 'text/plain;charset=utf-8');
+    showToast('菜单已导出为TXT文件', 'success');
+  }
+
+  /**
+   * 导出为Markdown格式
+   */
+  function exportAsMarkdown() {
+    const menuData = extractMenuData();
+    let content = `# 🍽️ 智能菜单\n\n`;
+    content += `> 生成时间：${menuData.generatedAt}\n\n`;
+    content += `---\n\n`;
+
+    menuData.days.forEach(day => {
+      if (day.day) {
+        content += `## ${day.day}\n\n`;
+      }
+      day.meals.forEach(meal => {
+        if (meal.meal) {
+          content += `### ${meal.meal}\n\n`;
+        }
+        meal.items.forEach(item => {
+          content += `- ${item}\n`;
+        });
+        content += `\n`;
+      });
+      content += `---\n\n`;
+    });
+
+    content += `\n*覆盖川粤鲁苏浙闽湘徽八大菜系*`;
+
+    downloadFile(content, '菜单.md', 'text/markdown;charset=utf-8');
+    showToast('菜单已导出为Markdown文件', 'success');
+  }
+
+  /**
+   * 打印菜单
+   */
+  function printMenu() {
+    const menuData = extractMenuData();
+    const printWindow = window.open('', '_blank');
+    
+    let htmlContent = `
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+      <meta charset="UTF-8">
+      <title>智能菜单</title>
+      <style>
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        body {
+          font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+          padding: 30px;
+          background: #ffffff;
+        }
+        .print-header {
+          text-align: center;
+          margin-bottom: 30px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid #059669;
+        }
+        .print-title {
+          font-size: 28px;
+          font-weight: 700;
+          color: #059669;
+          margin-bottom: 10px;
+        }
+        .print-time {
+          font-size: 14px;
+          color: #64748b;
+        }
+        .day-section {
+          margin-bottom: 25px;
+        }
+        .day-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #0f172a;
+          padding: 12px 18px;
+          background: #f0fdf4;
+          border-radius: 8px;
+          margin-bottom: 15px;
+          border-left: 4px solid #059669;
+        }
+        .meal-section {
+          margin-bottom: 15px;
+        }
+        .meal-title {
+          font-size: 15px;
+          font-weight: 600;
+          color: #334155;
+          margin-bottom: 10px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .items-list {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 10px;
+        }
+        .item {
+          padding: 8px 12px;
+          background: #f8fafc;
+          border-radius: 6px;
+          font-size: 14px;
+          color: #334155;
+        }
+        .print-footer {
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #e2e8f0;
+          text-align: center;
+          font-size: 12px;
+          color: #94a3b8;
+        }
+        @media print {
+          body {
+            padding: 20px;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="print-header">
+        <div class="print-title">🍽️ 智能菜单</div>
+        <div class="print-time">生成时间：${menuData.generatedAt}</div>
+      </div>
+    `;
+
+    menuData.days.forEach(day => {
+      if (day.day) {
+        htmlContent += `<div class="day-section">`;
+        htmlContent += `<div class="day-title">${day.day}</div>`;
+      }
+      
+      day.meals.forEach(meal => {
+        htmlContent += `<div class="meal-section">`;
+        if (meal.meal) {
+          htmlContent += `<div class="meal-title">${meal.meal}</div>`;
+        }
+        htmlContent += `<div class="items-list">`;
+        meal.items.forEach(item => {
+          htmlContent += `<div class="item">${item}</div>`;
+        });
+        htmlContent += `</div></div>`;
+      });
+      
+      if (day.day) {
+        htmlContent += `</div>`;
+      }
+    });
+
+    htmlContent += `
+      <div class="print-footer">
+        覆盖川粤鲁苏浙闽湘徽八大菜系 · 智能推荐不重复
+      </div>
+    </body>
+    </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    printWindow.onload = () => {
+      printWindow.print();
+    };
+
+    showToast('打印对话框已打开', 'success');
+  }
+
+  /**
+   * 通用文件下载函数
+   */
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   return {
     showToast,
     setButtonLoading,
     renderSingleMeal,
     renderDayMenu,
     renderWeekMenu,
+    exportAsTxt,
+    exportAsMarkdown,
+    printMenu,
   };
 })();
